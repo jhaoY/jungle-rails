@@ -2,15 +2,16 @@ require 'rails_helper'
 
 RSpec.describe Product, type: :model do
   describe 'Validations' do
+    before :each do
+      @category = Category.create(name: "Test Category")
+    end
     it "validates with all fields" do
-      @category = Category.create(name: "Test All Fields")
       @product = Product.new(name: 'Test Name', price_cents: 99.99, quantity: 5, category_id: @category.id )
 
       expect(@product).to be_valid
     end
 
-    it "name cannot be nil" do
-      @category = Category.create(name: "Test Name Field")  
+    it "name cannot be nil" do  
       @product = Product.new(name: nil, price_cents: 99.99, quantity: 5, category_id: @category.id )
 
       expect(@product).to_not be_valid
@@ -18,7 +19,6 @@ RSpec.describe Product, type: :model do
     end
 
     it "price cannot be nil" do
-      @category = Category.create(name: "Test Price Field")
       @product = Product.new(name: 'Test Name', price_cents: nil, quantity: 5, category_id: @category.id )
 
       expect(@product).to_not be_valid
@@ -26,7 +26,6 @@ RSpec.describe Product, type: :model do
     end
 
     it "quantity cannot be nil" do
-      @category = Category.create(name: "Test Quantity Field")
       @product = Product.new(name: 'Test Name', price_cents: 99.99, quantity: nil, category_id: @category.id )
 
       expect(@product).to_not be_valid
@@ -34,7 +33,6 @@ RSpec.describe Product, type: :model do
     end
 
     it "category cannot be nil" do
-      @category = Category.create(name: "Test Category Field")
       @product = Product.new(name: 'Test Name', price_cents: 99.99, quantity: 5, category_id: nil )
 
       expect(@product).to_not be_valid
