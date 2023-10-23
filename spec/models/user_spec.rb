@@ -7,17 +7,14 @@ RSpec.describe User, type: :model do
     end
     
     it "password and password confirmation fields must be the same" do
-      @user = User.create(first_name: "Peter", last_name: "Parker", email: "spider@man.com", password: "ilovemj", password_confirmation: 'ilovemj')
-
       expect(@user).to be_valid
     end
 
     it "email must unique and not case sensitive" do
       User.create(first_name: "Peter", last_name: "Parker", email: "spider@man.com", password: "ilovemj", password_confirmation: 'ilovemj')
-      @duplicate_user = User.create(first_name: "Peter", last_name: "Parker", email: "spider@man.com", password: "iloveblackcat", password_confirmation: 'iloveblackcat')
 
-      expect(@duplicate_user).to_not be_valid
-      expect(@duplicate_user.errors.full_messages).to include("Email has already been taken")
+      expect(@user).to_not be_valid
+      expect(@user.errors.full_messages).to include("Email has already been taken")
     end
 
     it "email must be present" do
@@ -36,7 +33,7 @@ RSpec.describe User, type: :model do
 
     it "last name must be present" do
       @user.last_name = nil
-      
+
       expect(@user).to_not be_valid
       expect(@user.errors.full_messages).to include("Last name can't be blank")
     end
@@ -51,7 +48,41 @@ RSpec.describe User, type: :model do
 
   end
 
-  # describe ".authenticate_with_credentials" do
+  describe ".authenticate_with_credentials" do
+    it "authenticates with correct credentials" do
+      @user = User.create(first_name: "Tony", last_name: "Stark", email: "iron@man.com", password: "fingersnap", password_confirmation: 'fingersnap')
+      @authenticated_user = User.authenticate_with_credentials("iron@man.com", "fingersnap")
 
-  # end
+      expect(@authenticated_user).to eq(@user)
+    end
+
+    it "does not authenticate with incorrect password" do
+      @user = User.create(first_name: "Tony", last_name: "Stark", email: "iron@man.com", password: "fingersnap", password_confirmation: 'fingersnap')
+      @authenticated_user = User.authenticate_with_credentials("iron@man.com", "fingers")
+
+      expect(@authenticated_user).to_not eq(@user)
+    end
+
+    it "does not authenticate with incorrect email" do
+      @user = User.create(first_name: "Tony", last_name: "Stark", email: "iron@man.com", password: "fingersnap", password_confirmation: 'fingersnap')
+      @authenticated_user = User.authenticate_with_credentials("iron@m.com", "fingersnap")
+
+      expect(@authenticated_user).to_not eq(@user)
+    end
+
+    it "authentication is not case sensitive for emails" do
+      @user = User.create(first_name: "Tony", last_name: "Stark", email: "iron@man.com", password: "fingersnap", password_confirmation: 'fingersnap')
+      @authenticated_user = User.authenticate_with_credentials("IRON@man.com", "fingersnap")
+
+      expect(@authenticated_user).to eq(@user)
+    end
+
+    it "authenticates with trailing spaces in email" do
+      @user = User.create(first_name: "Tony", last_name: "Stark", email: "iron@man.com", password: "fingersnap", password_confirmation: 'fingersnap')
+      @authenticated_user = User.authenticate_with_credentials(" iron@man.com ", "fingersnap")
+
+      expect(@authenticated_user).to eq(@user)
+    end
+
+  end
 end
